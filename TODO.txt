@@ -1,0 +1,49 @@
+DONE Use category list for categories dropdown - View
+DONE Use category list for categories dropdown - Add
+DONE Edit Category
+DONE Sex selection based on last added item
+Audit log
+    New table: audit (id, add/edit/delete , table, ext_id, values)
+Category already exists error
+Capitalize category name
+Export data
+Edit sex
+Undo
+
+
+
+Nice menu
+Settings for colors
+Merge ViewBySzie/ViewBy..
+DONE Dynamic Size selection list
+
+
+list by size / then by sex / then by category (checkbox to filter sex)
+add menu
+settings for colors
+export to... by sex
+
+
+Tables by category
+view by category, simple, key matter as ordered by key
+view by size/sex
+    loop all cat
+    difficult, as it will go by category then sex
+        should throw away other sex results and basically loop over 3 times
+
+
+Tables by category/sex
+view by category is difficult because we ahve to list 3 different tables, cat_boy, cat_girl, cat_uni
+as we cannot mix them, we won't be able to have the same sizes next to each other
+view by size, then sex is... simple, just have to throw away all the non size results
+
+
+1) find a way to mix the listenables
+2) maintain tables in both ways
+3) use another db -> use sqlie
+
+https://flutter.dev/docs/cookbook/persistence/sqlite
+table for each category
+https://medium.com/@ekosuprastyo15/how-to-create-listview-in-flutter-dynamic-d824dc86f470 -> futurebuilder seems better
+also https://stackoverflow.com/questions/57855558/flutter-create-listview-with-local-sqlite-file
+https://grokonez.com/flutter/flutter-sqlite-example-listview-crud-operations-sqflite-plugin
