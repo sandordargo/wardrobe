@@ -2,19 +2,22 @@ DONE Use category list for categories dropdown - View
 DONE Use category list for categories dropdown - Add
 DONE Edit Category
 DONE Sex selection based on last added item
-Audit log
+DONE Audit log
     New table: audit (id, add/edit/delete , table, ext_id, values)
-Category already exists error
-Capitalize category name
-Export data
-Edit sex
+DONE Category already exists error
+DONE Export data
+    cols: all the available sizes
+    rows: all the non-empty categories, per sex
 Undo
-
-
-
+Edit sex
+? Capitalize category name
 Nice menu
 Settings for colors
 Merge ViewBySzie/ViewBy..
+OAuth
+Icon
+
+
 DONE Dynamic Size selection list
 
 

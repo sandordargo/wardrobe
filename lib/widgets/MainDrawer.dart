@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wardrobe/data/DateExporter.dart';
 import 'package:wardrobe/widgets/AuditLogsList.dart';
 
 
@@ -19,7 +20,23 @@ class _MyDrawerState extends State<MainDrawer> {
     return new Drawer(
       child: new ListView(
         children: [
-          new DrawerHeader(child: Text("Wardrobe")),
+          new DrawerHeader(
+              child: Text("Wardrobe",
+              style: TextStyle(height: 2,
+                  fontSize: 50,
+                decorationStyle: TextDecorationStyle.wavy,
+                foreground: Paint()
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 3
+                  ..color = Colors.green[700],),),
+            decoration: BoxDecoration(
+              color: Colors.lightGreenAccent,
+              // image: DecorationImage(
+              //   image: AssetImage('assets/images/wardrobe.png'),
+              //   fit: BoxFit.scaleDown ,
+              // ),
+            ),
+          ),
           new ListTile(
             title: new Text("View By Category"),
             onTap: _viewByCategory,
@@ -35,6 +52,10 @@ class _MyDrawerState extends State<MainDrawer> {
           new ListTile(
             title: new Text("Check Your Activities"),
             onTap: _auditLogs,
+          ),
+          new ListTile(
+            title: new Text("Export data"),
+            onTap: _exportData,
           ),
         ],
       ),
@@ -66,10 +87,14 @@ class _MyDrawerState extends State<MainDrawer> {
   }
 
   void _auditLogs() {
-    Navigator.pop(context);
     Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new AuditLogsList()),
     );
+  }
+
+  void _exportData() {
+    Navigator.pop(context);
+    new DataExporter().export();
   }
 }

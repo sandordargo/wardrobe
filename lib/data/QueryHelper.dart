@@ -39,7 +39,7 @@ class ClothesDB {
     // Get a location using path_provider
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
 
-    String path = join(documentsDirectory.path, "wardrobe.db");
+    String path = join(documentsDirectory.path, "wardrobe_1.1.db");
     ClothesDB.path = path;
     db = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
@@ -86,7 +86,7 @@ class ClothesDB {
   Future<List<AuditEntry>> getAuditEntries() async {
     var db = await _getDb();
     var result = await db.rawQuery(
-        'SELECT * FROM AUDIT_LOGS LIMIT 100',
+        'SELECT * FROM AUDIT_LOGS ORDER BY TIMESTAMP DESC LIMIT 100 ',
         []);
     if (result.length == 0) return [];
     List<AuditEntry> auditLogs = [];
@@ -119,6 +119,14 @@ class ClothesDB {
         .rawQuery('SELECT ID FROM CATEGORIES WHERE NAME= ? ', [category]);
     print(result);
     return result[0]["ID"];
+  }
+
+  Future<bool> doesCategoryExist(String category) async {
+    var db = await _getDb();
+    var result = await db
+        .rawQuery('SELECT ID FROM CATEGORIES WHERE NAME= ? ', [category]);
+    print(result);
+    return result.length > 0;
   }
 
   Future<void> insertGarment(GarmentSQL garment) async {
@@ -158,10 +166,31 @@ class ClothesDB {
     return garments;
   }
 
+  Future<List<GarmentSQL>> getClothesByCategoryAndSex(String category, String sex) async {
+    var db = await _getDb();
+    var result = await db.rawQuery(
+        'SELECT CLOTHES.ID, CLOTHES.QUANTITY, CLOTHES.SEX, CLOTHES.SIZE, CATEGORIES.NAME FROM CLOTHES, CATEGORIES WHERE CLOTHES.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.NAME = ? AND SEX=? ORDER BY SIZE',
+        [category, sex]);
+    if (result.length == 0) return [];
+    List<GarmentSQL> garments = [];
+    print(result);
+    for (Map<String, dynamic> map in result) {
+      print(map);
+      garments.add(new GarmentSQL(
+          id: map["ID"],
+          category: map["NAME"],
+          quantity: map["QUANTITY"],
+          sex: map["SEX"],
+          size: map["SIZE"]));
+    }
+    return garments;
+  }
+
+
   Future<List<GarmentSQL>> getClothesBySize(String size) async {
     var db = await _getDb();
     var result = await db.rawQuery(
-        'SELECT CLOTHES.ID, CLOTHES.QUANTITY, CLOTHES.SEX, CLOTHES.SIZE, CATEGORIES.NAME FROM CLOTHES, CATEGORIES WHERE CLOTHES.SIZE = ? AND CLOTHES.CATEGORY_ID = CATEGORIES.ID ORDER BY CLOTHES.SEX, CLOTHES.CATEGORY_ID ',
+        'SELECT CLOTHES.ID, CLOTHES.QUANTITY, CLOTHES.SEX, CLOTHES.SIZE, CATEGORIES.NAME FROM CLOTHES, CATEGORIES WHERE CLOTHES.SIZE = ? AND CLOTHES.CATEGORY_ID = CATEGORIES.ID ORDER BY CLOTHES.SEX, CATEGORIES.NAME',
         [size]);
     if (result.length == 0) return [];
     List<GarmentSQL> garments = [];
@@ -195,6 +224,30 @@ class ClothesDB {
     var db = await _getDb();
     var result =
         await db.rawQuery('SELECT ID, NAME FROM CATEGORIES ORDER BY NAME');
+    List<Category> categories = [];
+    for (Map<String, dynamic> map in result) {
+      print(map);
+      categories.add(new Category(id: map['ID'], name: map['NAME']));
+    }
+    return categories;
+  }
+
+  Future<int> getQuantityForCategoryAndSex(String category, String sex, String size) async {
+    var db = await _getDb();
+    var result =
+        await db.rawQuery('SELECT QUANTITY FROM CLOTHES,  CATEGORIES WHERE CLOTHES.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.NAME = ? AND CLOTHES.SIZE = ? AND CLOTHES.SEX = ?',
+            [category, size, sex]);
+    if (result.isEmpty) {
+      return 0;
+    }
+    return result[0]["QUANTITY"];
+  }
+
+
+  Future<List<Category>> getCategoriesWithClothes() async {
+    var db = await _getDb();
+    var result =
+    await db.rawQuery('SELECT DISTINCT NAME FROM CLOTHES INNER JOIN CATEGORIES ON CLOTHES.CATEGORY_ID = CATEGORIES.ID', []);
     List<Category> categories = [];
     for (Map<String, dynamic> map in result) {
       print(map);

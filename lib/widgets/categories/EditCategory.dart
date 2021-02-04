@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:wardrobe/data/AuditEntry.dart';
 import 'package:wardrobe/data/Category.dart';
 import 'package:wardrobe/data/Garment.dart';
 import 'package:wardrobe/data/GarmentSQL.dart';
@@ -14,8 +15,7 @@ class EditCategory extends StatefulWidget {
   EditCategory(this.category);
 
   @override
-  _EditCategoryState createState() =>
-      new _EditCategoryState(this.category);
+  _EditCategoryState createState() => new _EditCategoryState(this.category);
 }
 
 class _EditCategoryState extends State<EditCategory> {
@@ -59,21 +59,42 @@ class _EditCategoryState extends State<EditCategory> {
                           padding: const EdgeInsets.only(right: 10.0),
                           child: new RaisedButton(
                             onPressed: () async {
-                              category.name = categoryNameController.text;
-                              await _saveCategory();
-                              Navigator.pop(context);
-
-                              return showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return new AlertDialog(
-                                    // Retrieve the text the user has typed in using our
-                                    // TextEditingController
-                                    content: new Text(
-                                        "You added ${categoryNameController.text} category"),
+                              Future<bool> categoryAlreadyExist =
+                                  ClothesDB.get().doesCategoryExist(
+                                      categoryNameController.text);
+                              categoryAlreadyExist.then((value) {
+                                if (value) {
+                                  return showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return new AlertDialog(
+                                        // Retrieve the text the user has typed in using our
+                                        // TextEditingController
+                                        content: new Text(
+                                            "${categoryNameController.text} already exists"),
+                                      );
+                                    },
                                   );
-                                },
-                              );
+                                } else {
+                                  String oldCategory = category.name;
+                                  category.name = categoryNameController.text;
+                                  _saveCategory(oldCategory);
+                                  Navigator.pop(context);
+                                  return showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return new AlertDialog(
+                                        // Retrieve the text the user has typed in using our
+                                        // TextEditingController
+                                        content: new Text(
+                                            "You added ${categoryNameController.text} category"),
+                                      );
+                                    },
+                                  );
+                                }
+                              });
+
+
                             },
                             child: new Text('Save',
                                 style: new TextStyle(color: Colors.white)),
@@ -94,16 +115,10 @@ class _EditCategoryState extends State<EditCategory> {
                 ]))));
   }
 
-  Future _saveCategory() async {
-    // var box = Hive.box("${selectedGarmentCategory}");
-    // var currentGarment = box.get("${sizeOfGarments}_${selectedSex}");
-    // var currentQuantity = currentGarment == null ? 0 : currentGarment.quantity;
-    // box.put("${sizeOfGarments}_${selectedSex}", new Garment(
-    //     sex: selectedSex,
-    //     size: sizeOfGarments,
-    //     quantity: currentQuantity + numberOfGarments,
-    //     categeory: selectedGarmentCategory));
+  Future _saveCategory(String oldCategory) async {
     var db = ClothesDB.get();
+    await db.insertAuditEntry(new AuditEntry("UPDATE", "CATEGORIES",
+        values: "CATEGORY: $oldCategory -> ${categoryNameController.text}"));
     await db.updateCategory(category);
     setState(() {});
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wardrobe/EditGarment.dart';
+import 'package:wardrobe/data/AuditEntry.dart';
 import 'package:wardrobe/data/Category.dart';
 
 import 'package:wardrobe/data/GarmentSQL.dart';
@@ -40,9 +41,11 @@ class _CategoriesListState extends State<CategoriesList> {
     setState(() {});
   }
 
-  void _deleteSize(_confirmDelete) {
+  void _deleteSize(Category category) {
     setState(() {
-      ClothesDB.get().deleteCategory(_confirmDelete);
+      ClothesDB.get().deleteCategory(category);
+      ClothesDB.get().insertAuditEntry(new AuditEntry("DELETE", "CATEGORIES",
+          values: "CATEGORY: ${category.name}"));
     });
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:wardrobe/data/AuditEntry.dart';
 import 'package:wardrobe/data/Garment.dart';
 import 'package:wardrobe/data/GarmentSQL.dart';
 import 'package:wardrobe/data/QueryHelper.dart';
@@ -51,20 +52,38 @@ class _AddCategoryState extends State<AddCategory> {
                           padding: const EdgeInsets.only(right: 10.0),
                           child: new RaisedButton(
                             onPressed: () async {
-                              await _saveCategory();
+                              Future<bool> categoryAlreadyExist = ClothesDB.get().doesCategoryExist(categoryNameController.text);
+                              categoryAlreadyExist.then((value) {
+                                if (value) {
+                                  return showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return new AlertDialog(
+                                        // Retrieve the text the user has typed in using our
+                                        // TextEditingController
+                                        content: new Text(
+                                            "${categoryNameController.text} already exists"),
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  _saveCategory();
                               Navigator.pop(context);
 
-                              return showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return new AlertDialog(
-                                    // Retrieve the text the user has typed in using our
-                                    // TextEditingController
-                                    content: new Text(
-                                        "You added ${categoryNameController.text} category"),
-                                  );
-                                },
-                              );
+                                return showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return new AlertDialog(
+                                      // Retrieve the text the user has typed in using our
+                                      // TextEditingController
+                                      content: new Text(
+                                          "You added ${categoryNameController.text} category"),
+                                    );
+                                  },
+                                );
+                                }
+                              });
+
                             },
                             child: new Text('Save',
                                 style: new TextStyle(color: Colors.white)),
@@ -86,15 +105,10 @@ class _AddCategoryState extends State<AddCategory> {
   }
 
   Future _saveCategory() async {
-    // var box = Hive.box("${selectedGarmentCategory}");
-    // var currentGarment = box.get("${sizeOfGarments}_${selectedSex}");
-    // var currentQuantity = currentGarment == null ? 0 : currentGarment.quantity;
-    // box.put("${sizeOfGarments}_${selectedSex}", new Garment(
-    //     sex: selectedSex,
-    //     size: sizeOfGarments,
-    //     quantity: currentQuantity + numberOfGarments,
-    //     categeory: selectedGarmentCategory));
     var db = ClothesDB.get();
+    await db.insertAuditEntry(new AuditEntry("INSERT", "CATEGORIES",
+        values: "CATEGORY: ${categoryNameController.text}"));
+
     await db.insertCategory(categoryNameController.text);
     setState(() {});
   }
