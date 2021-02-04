@@ -15,6 +15,11 @@ class GarmentSQL {
     this.quantity = c["quantity"];
   }
 
+  String toString() {
+    return "Garment(sex: ${this.sex}, size: ${this.size}, "
+        "quantity: ${this.quantity}, category: ${this.category})\n";
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

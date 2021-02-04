@@ -21,16 +21,16 @@ class _MyDrawerState extends State<MainDrawer> {
       child: new ListView(
         children: [
           new DrawerHeader(
-              child: Text("Wardrobe",
-              style: TextStyle(height: 2,
-                  fontSize: 50,
+              child: Text("Track Your Clothes",
+              style: TextStyle(height: 3,
+                  fontSize: 30,
                 decorationStyle: TextDecorationStyle.wavy,
                 foreground: Paint()
                   ..style = PaintingStyle.stroke
                   ..strokeWidth = 3
-                  ..color = Colors.green[700],),),
+                  ..color = Colors.blue[700],),),
             decoration: BoxDecoration(
-              color: Colors.lightGreenAccent,
+              color: Colors.lightBlueAccent,
               // image: DecorationImage(
               //   image: AssetImage('assets/images/wardrobe.png'),
               //   fit: BoxFit.scaleDown ,

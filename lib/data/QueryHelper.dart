@@ -90,11 +90,7 @@ class ClothesDB {
         []);
     if (result.length == 0) return [];
     List<AuditEntry> auditLogs = [];
-    print('AAA');
-    print(result);
     for (Map<String, dynamic> map in result) {
-      print('map');
-      print(map);
       var al =new AuditEntry(
           map["OPERATION"],
           map["TABLE_NAME"],
@@ -102,14 +98,9 @@ class ClothesDB {
           id: map["ID"],
           values: map["DATA"],
           external_id: map["EXTERNAL_ID"]);
-      print('al');
       auditLogs.add(al);
-      print('al');
-      print(al);
 
     }
-    print('auditLogs');
-    print(auditLogs);
     return auditLogs;
   }
 
@@ -117,7 +108,6 @@ class ClothesDB {
     var db = await _getDb();
     var result = await db
         .rawQuery('SELECT ID FROM CATEGORIES WHERE NAME= ? ', [category]);
-    print(result);
     return result[0]["ID"];
   }
 
@@ -125,7 +115,6 @@ class ClothesDB {
     var db = await _getDb();
     var result = await db
         .rawQuery('SELECT ID FROM CATEGORIES WHERE NAME= ? ', [category]);
-    print(result);
     return result.length > 0;
   }
 
@@ -153,7 +142,6 @@ class ClothesDB {
         [category]);
     if (result.length == 0) return [];
     List<GarmentSQL> garments = [];
-    print(result);
     for (Map<String, dynamic> map in result) {
       print(map);
       garments.add(new GarmentSQL(
@@ -173,9 +161,7 @@ class ClothesDB {
         [category, sex]);
     if (result.length == 0) return [];
     List<GarmentSQL> garments = [];
-    print(result);
     for (Map<String, dynamic> map in result) {
-      print(map);
       garments.add(new GarmentSQL(
           id: map["ID"],
           category: map["NAME"],
@@ -194,10 +180,8 @@ class ClothesDB {
         [size]);
     if (result.length == 0) return [];
     List<GarmentSQL> garments = [];
-    print(result);
     for (Map<String, dynamic> map in result) {
-      print("map");
-      print(map);
+
       garments.add(new GarmentSQL(
           id: map["ID"],
           category: map["NAME"],
@@ -214,7 +198,6 @@ class ClothesDB {
         .rawQuery('SELECT DISTINCT(SIZE) FROM $tableName ORDER BY SIZE');
     List<String> sizes = [];
     for (Map<String, dynamic> map in result) {
-      print(map);
       sizes.add(map['SIZE']);
     }
     return sizes;
@@ -226,7 +209,6 @@ class ClothesDB {
         await db.rawQuery('SELECT ID, NAME FROM CATEGORIES ORDER BY NAME');
     List<Category> categories = [];
     for (Map<String, dynamic> map in result) {
-      print(map);
       categories.add(new Category(id: map['ID'], name: map['NAME']));
     }
     return categories;
@@ -250,7 +232,6 @@ class ClothesDB {
     await db.rawQuery('SELECT DISTINCT NAME FROM CLOTHES INNER JOIN CATEGORIES ON CLOTHES.CATEGORY_ID = CATEGORIES.ID', []);
     List<Category> categories = [];
     for (Map<String, dynamic> map in result) {
-      print(map);
       categories.add(new Category(id: map['ID'], name: map['NAME']));
     }
     return categories;
@@ -262,7 +243,6 @@ class ClothesDB {
     var result = await db.rawQuery(
         'SELECT * FROM CLOTHES, CATEGORIES WHERE CLOTHES.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.NAME = ? AND CLOTHES.SIZE = ? AND CLOTHES.SEX = ?',
         [category, size, sex]);
-    print(result);
     return result.isNotEmpty;
   }
 
@@ -272,7 +252,6 @@ class ClothesDB {
     var result = await db.rawQuery(
         'SELECT * FROM CLOTHES, CATEGORIES WHERE CLOTHES.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.NAME = ? AND CLOTHES.SIZE = ? AND CLOTHES.SEX = ?',
         [category, size, sex]);
-    print(result);
     var map = result[0];
     return new GarmentSQL(
         id: map["ID"],
@@ -284,30 +263,25 @@ class ClothesDB {
 
   void deleteGarment(GarmentSQL garment) async {
     var db = await _getDb();
-    print("garment.id");
-    print(garment.id);
     await db.rawQuery("DELETE FROM CLOTHES WHERE ID = ?", [garment.id]);
     // await db.delete("CLOTHES", where: "ID = ?",  whereArgs: [garment.id]);
   }
 
   void deleteCategory(Category category) async {
     var db = await _getDb();
-    print("category.id");
-    print(category.id);
     await db.rawQuery("DELETE FROM CATEGORIES WHERE ID = ?", [category.id]);
   }
 
   Future<void> upsertGarment(GarmentSQL garment) async {
     var db = await _getDb();
     var result = await db.rawQuery(
-        'SELECT * FROM  CLOTHES, CATEGORIES WHERE CLOTHES.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.NAME = ? AND CLOTHES.SIZE = ? AND CLOTHES.SEX = ?',
+        'SELECT CLOTHES.ID as ID, QUANTITY FROM  CLOTHES, CATEGORIES WHERE CLOTHES.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.NAME = ? AND CLOTHES.SIZE = ? AND CLOTHES.SEX = ?',
         [garment.category, garment.size, garment.sex]);
-    print(result);
 
     if (result.isEmpty) {
-      await insertGarment(garment);
+      insertGarment(garment);
     } else {
-      await db.rawUpdate('UPDATE $tableName SET QUANTITY = ? WHERE ID = ?',
+      db.rawUpdate('UPDATE $tableName SET QUANTITY = ? WHERE ID = ?',
           [result[0]["QUANTITY"] + garment.quantity, result[0]["ID"]]);
     }
   }
@@ -318,8 +292,6 @@ class ClothesDB {
   }
 
   void updateCategory(Category category) {
-    print(category.name);
-    print(category.id);
     db.rawUpdate('UPDATE CATEGORIES SET NAME = ? WHERE ID = ?',
     [category.name, category.id]);
   }
